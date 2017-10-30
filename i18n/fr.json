@@ -43,5 +43,6 @@
   "BLOND": "Blond",
   "RED": "Rouge",
   "OTHER": "Autre",
-  "GRAY": "Gris"
+  "GRAY": "Gris",
+  "NEW_SESSION": "Nouvelle session"
 }

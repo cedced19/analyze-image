@@ -16,7 +16,10 @@
     </form>
     <div class="buttons">
       <a class="btn" id="computer-vision" style="display: none;"><%=translation.ANALYZE_COMPUTER_VISION %></a>
+      <br>
       <a class="btn" id="face" style="display: none;"><%=translation.ANALYZE_FACE %></a>
+      <br>
+      <a class="btn" id="new-session"><%=translation.NEW_SESSION %></a>
     </div>
     <div id="canvas"></div>
     <pre id="interpreted"></pre>
@@ -156,7 +159,7 @@
              addLine('<%=translation.FACIALHAIR %>:');
              addLine('<%=translation.MOUSTACHE %>:', item.faceAttributes.facialHair.moustache);
              addLine('<%=translation.BEARD %>:', item.faceAttributes.facialHair.beard);
-             addLine('<%=translation.AGE %>:', item.faceAttributes.facialHair.sideburns);
+             addLine('<%=translation.SIDEBURNS %>:', item.faceAttributes.facialHair.sideburns);
              addEmptyLine();
 
              /* Glasses */
@@ -251,6 +254,10 @@
                   document.getElementById('face').style.display = 'none';
                 });
                 xhr.send();
+         };
+
+         document.getElementById('new-session').onclick = function () {
+           document.location.href='/';
          };
     </script>
   </body>
