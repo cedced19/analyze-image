@@ -17,6 +17,7 @@ router.get('/:id', function(req, res, next) {
     res.json({
       error: error,
       body: JSON.parse(body),
+      url: req.app.get('address')  + '/api/images/' + req.params.id,
       statusCode: response.statusCode
     });
   });

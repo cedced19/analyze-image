@@ -18,7 +18,7 @@
       <a class="btn" id="computer-vision" style="display: none;"><%=translation.ANALYZE_COMPUTER_VISION %></a>
     </div>
     <pre id="content"></pre>
-    <canvas id="canvas"></canvas>
+    <div id="canvas"></div>
     <script type="text/javascript">
         var id = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
         var parsingErrorBox = document.getElementById('parsing-error');
@@ -58,14 +58,20 @@
          }
 
          function drawRectangles (data) {
-           var canvas = document.getElementById('canvas')
+           var container = document.getElementById('canvas');
+           while (container.firstChild) {
+             container.removeChild(container.firstChild);
+           }
+           container.appendChild(document.createElement('canvas'));
+           var canvas = container.firstChild;
            canvas.width = data.body.metadata.width;
            canvas.height = data.body.metadata.height;
-           var ctx = canvas.getContext("2d");
+           var ctx = canvas.getContext('2d');
+           ctx.clearRect(0, 0, canvas.width, canvas.height);
            var imageObj = new Image();
 
           imageObj.onload = function() {
-            ctx.drawImage(imageObj, 0,0);
+              ctx.drawImage(imageObj, 0,0);
 
               data.body.faces.forEach(function (item) {
                 ctx.beginPath();
