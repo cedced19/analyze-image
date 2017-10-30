@@ -59,7 +59,7 @@
               });
          }
 
-         function drawRectanglesComputerVision (data) {
+         function drawRectangles (data) {
            var container = document.getElementById('canvas');
            while (container.firstChild) {
              container.removeChild(container.firstChild);
@@ -90,7 +90,7 @@
           imageObj.src = '/api/images/'+ id;
          }
 
-         function drawRectanglesFace (data) {
+         function analyzeData (data) {
            var canvas = document.getElementById('canvas').firstChild;
            var ctx = canvas.getContext('2d');
            data.body.forEach(function (item) {
@@ -98,6 +98,13 @@
              ctx.lineWidth='6';
              ctx.strokeStyle='blue';
              ctx.strokeRect(item.faceRectangle.left,item.faceRectangle.top,item.faceRectangle.width,item.faceRectangle.height);
+             for(var propertyName in item.faceLandmarks) {
+               ctx.beginPath();
+               ctx.lineWidth='5';
+               ctx.strokeStyle='green';
+               ctx.strokeRect(Math.round(item.faceLandmarks[propertyName].x),Math.round(item.faceLandmarks[propertyName].y),1,1);
+             }
+
            });
          }
 
@@ -107,7 +114,7 @@
                 xhr.addEventListener('load', function () {
                   var data = JSON.parse(xhr.response)
                   content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
-                  drawRectanglesComputerVision(data);
+                  drawRectangles(data);
                   document.getElementById('face').style.display = 'block';
                   document.getElementById('computer-vision').style.display = 'none';
                 });
@@ -120,7 +127,7 @@
                 xhr.addEventListener('load', function () {
                   var data = JSON.parse(xhr.response);
                   content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
-                  drawRectanglesFace(data);
+                  analyzeData(data);
                   document.getElementById('face').style.display = 'none';
                 });
                 xhr.send();
