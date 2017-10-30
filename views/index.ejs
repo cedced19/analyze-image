@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Analyze Image | <%=translation.HOME_PAGE %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <h1>Analyze Image</h1>
+    <p><%=translation.WELCOME_MSG %> Analyze Image.<br><%=translation.ADVICE %></p>
+    <form>
+          <label for="file"><%=translation.IMAGE %>: <span id="image-selected" style="display: none"><%=translation.IMAGE_SELECTED %></span></label>
+          <label class="btn btn-file">
+           <%=translation.SELECT_A_IMAGE %> <input type="file" id="file-input" accept="image/*">
+         </label>
+    </form>
+    <div class="buttons">
+      <a class="btn" id="computer-vision" style="display: none;"><%=translation.ANALYZE_COMPUTER_VISION %></a>
+    </div>
+    <pre id="content"></pre>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript">
+        var id = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
+        var parsingErrorBox = document.getElementById('parsing-error');
+        var content = document.getElementById('content');
+
+        document.getElementById('file-input').addEventListener('change', function (e) {
+             document.getElementById('image-selected').style.display = 'inline-block';
+             var xhr = new XMLHttpRequest();
+             xhr.open('POST', '/api/images');
+             xhr.addEventListener('load', function() {
+               document.getElementById('computer-vision').style.display = 'block';
+             });
+             var form = new FormData();
+             form.append('id', id);
+             form.append('type', 'raw');
+             form.append('file', e.target.files[0]);
+             xhr.send(form);
+         });
+
+         function syntaxHighlight(json) {
+              json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                  var cls = 'number';
+                  if (/^"/.test(match)) {
+                      if (/:$/.test(match)) {
+                          cls = 'key';
+                      } else {
+                          cls = 'string';
+                      }
+                  } else if (/true|false/.test(match)) {
+                      cls = 'boolean';
+                  } else if (/null/.test(match)) {
+                      cls = 'null';
+                  }
+                  return '<span class="' + cls + '">' + match + '</span>';
+              });
+         }
+
+         function drawRectangles (data) {
+           var canvas = document.getElementById('canvas')
+           canvas.width = data.body.metadata.width;
+           canvas.height = data.body.metadata.height;
+           var ctx = canvas.getContext("2d");
+           var imageObj = new Image();
+
+          imageObj.onload = function() {
+            ctx.drawImage(imageObj, 0,0);
+
+              data.body.faces.forEach(function (item) {
+                ctx.beginPath();
+                ctx.lineWidth='6';
+                ctx.strokeStyle='red';
+                ctx.strokeRect(item.faceRectangle.left,item.faceRectangle.top,item.faceRectangle.width,item.faceRectangle.height);
+                ctx.font="40px Georgia";
+                ctx.fillStyle = "#ff0000";
+                ctx.fillText(item.age,item.faceRectangle.left-30,item.faceRectangle.top-30);
+              });
+
+
+          }
+          imageObj.src = '/api/images/'+ id;
+         }
+
+         document.getElementById('computer-vision').onclick = function () {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/api/computer-vision/' + id);
+                xhr.addEventListener('load', function () {
+                  var data = JSON.parse(xhr.response)
+                  content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
+                  drawRectangles(data);
+                });
+                xhr.send();
+         };
+    </script>
+  </body>
+</html>

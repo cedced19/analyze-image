@@ -1,0 +1,50 @@
+{
+  "name": "analyze-image",
+  "version": "0.0.0",
+  "description": "A website to use an OCR on an image from the phone, and get the result on the pc. ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node bin/analyze-image"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cedced19/analyze-image.git"
+  },
+  "keywords": [
+    "detection",
+    "computer",
+    "vision",
+    "discribe",
+    "microsoft",
+    "website",
+    "photo",
+    "pc"
+  ],
+  "author": "Cédric JUNG",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cedced19/analyze-image/issues"
+  },
+  "homepage": "https://github.com/cedced19/analyze-image#readme",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "compression": "^1.6.2",
+    "cookie-parser": "^1.4.3",
+    "debug": "^2.6.6",
+    "ejs": "^2.5.6",
+    "env-port": "0.0.0",
+    "exists-file": "^3.0.1",
+    "express": "^4.15.2",
+    "express-beautify": "^0.1.3",
+    "express-minify": "^0.2.0",
+    "helmet": "^3.6.0",
+    "i18n-express": "^1.1.2",
+    "internal-ip": "^1.2.0",
+    "morgan": "^1.8.1",
+    "multer": "^1.3.0",
+    "randomstring": "^1.1.5",
+    "request": "^2.83.0",
+    "serve-favicon": "^2.4.2",
+    "server-welcome": "0.0.0"
+  }
+}
