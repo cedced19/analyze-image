@@ -20,6 +20,7 @@ var address = 'http' + (config.https?'s':'') + '://' + (config.address || requir
 app.set('port', port);
 app.set('address', address);
 app.set('computer_vision_api_key', config.computer_vision_api_key);
+app.set('face_api_key', config.face_api_key);
 
 /**
  * Create HTTP server.

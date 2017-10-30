@@ -13,7 +13,7 @@ var helmet = require('helmet');
 
 var index = require('./routes/index');
 var images = require('./routes/images');
-var computerVision = require('./routes/computer-vision');
+var microsoft = require('./routes/microsoft');
 var app = express();
 
 // view engine setup
@@ -46,7 +46,7 @@ app.use(helmet());
 
 app.use('/', index);
 app.use('/api/images', images);
-app.use('/api/computer-vision', computerVision);
+app.use('/api/ms', microsoft);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -8,7 +8,7 @@
   <body>
     <h1>Analyze Image</h1>
     <p><%=translation.WELCOME_MSG %> Analyze Image.<br><%=translation.ADVICE %></p>
-    <form>
+    <form id="image-form">
           <label for="file"><%=translation.IMAGE %>: <span id="image-selected" style="display: none"><%=translation.IMAGE_SELECTED %></span></label>
           <label class="btn btn-file">
            <%=translation.SELECT_A_IMAGE %> <input type="file" id="file-input" accept="image/*">
@@ -16,9 +16,10 @@
     </form>
     <div class="buttons">
       <a class="btn" id="computer-vision" style="display: none;"><%=translation.ANALYZE_COMPUTER_VISION %></a>
+      <a class="btn" id="face" style="display: none;"><%=translation.ANALYZE_FACE %></a>
     </div>
-    <pre id="content"></pre>
     <div id="canvas"></div>
+    <pre id="content"></pre>
     <script type="text/javascript">
         var id = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
         var parsingErrorBox = document.getElementById('parsing-error');
@@ -30,6 +31,7 @@
              xhr.open('POST', '/api/images');
              xhr.addEventListener('load', function() {
                document.getElementById('computer-vision').style.display = 'block';
+               document.getElementById('image-form').style.display = 'none';
              });
              var form = new FormData();
              form.append('id', id);
@@ -57,7 +59,7 @@
               });
          }
 
-         function drawRectangles (data) {
+         function drawRectanglesComputerVision (data) {
            var container = document.getElementById('canvas');
            while (container.firstChild) {
              container.removeChild(container.firstChild);
@@ -88,13 +90,38 @@
           imageObj.src = '/api/images/'+ id;
          }
 
+         function drawRectanglesFace (data) {
+           var canvas = document.getElementById('canvas').firstChild;
+           var ctx = canvas.getContext('2d');
+           data.body.forEach(function (item) {
+             ctx.beginPath();
+             ctx.lineWidth='6';
+             ctx.strokeStyle='blue';
+             ctx.strokeRect(item.faceRectangle.left,item.faceRectangle.top,item.faceRectangle.width,item.faceRectangle.height);
+           });
+         }
+
          document.getElementById('computer-vision').onclick = function () {
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/api/computer-vision/' + id);
+                xhr.open('GET', '/api/ms/computer-vision/' + id);
                 xhr.addEventListener('load', function () {
                   var data = JSON.parse(xhr.response)
                   content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
-                  drawRectangles(data);
+                  drawRectanglesComputerVision(data);
+                  document.getElementById('face').style.display = 'block';
+                  document.getElementById('computer-vision').style.display = 'none';
+                });
+                xhr.send();
+         };
+
+         document.getElementById('face').onclick = function () {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '/api/ms/face/' + id);
+                xhr.addEventListener('load', function () {
+                  var data = JSON.parse(xhr.response);
+                  content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
+                  drawRectanglesFace(data);
+                  document.getElementById('face').style.display = 'none';
                 });
                 xhr.send();
          };

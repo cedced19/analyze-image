@@ -6,5 +6,6 @@
   "IMAGE_SELECTED": "Image selected",
   "IMAGE": "Image",
   "SELECT_A_IMAGE": "Select an image",
-  "ANALYZE_COMPUTER_VISION": "Analyze with \"Computer Vision\" from Microsoft"
+  "ANALYZE_COMPUTER_VISION": "Analyze with \"Computer Vision\" from Microsoft",
+  "ANALYZE_FACE": "Analyze with \"Face Api\" from Microsoft"
 }
