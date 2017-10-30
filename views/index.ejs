@@ -3,7 +3,7 @@
   <head>
     <title>Analyze Image | <%=translation.HOME_PAGE %></title>
     <link rel="stylesheet" href="/stylesheets/style.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" raw="width=device-width, initial-scale=1.0">
   </head>
   <body>
     <h1>Analyze Image</h1>
@@ -19,11 +19,13 @@
       <a class="btn" id="face" style="display: none;"><%=translation.ANALYZE_FACE %></a>
     </div>
     <div id="canvas"></div>
-    <pre id="content"></pre>
+    <pre id="interpreted"></pre>
+    <pre id="raw"></pre>
     <script type="text/javascript">
         var id = window.location.href.substr(window.location.href.lastIndexOf('/') + 1);
         var parsingErrorBox = document.getElementById('parsing-error');
-        var content = document.getElementById('content');
+        var raw = document.getElementById('raw');
+        var interpreted = document.getElementById('interpreted');
 
         document.getElementById('file-input').addEventListener('change', function (e) {
              document.getElementById('image-selected').style.display = 'inline-block';
@@ -92,8 +94,25 @@
            var ctx = canvas.getContext('2d');
            var text = '';
 
+           function addWord () {
+             text += [].slice.apply(arguments).join(' ') + ' ';
+           };
+
            function addLine () {
              text += [].slice.apply(arguments).join(' ') + '\n';
+           };
+
+           function addEmptyLine () {
+             text += '\n';
+           };
+
+           function yesOrNo (aspect) {
+             if (aspect) {
+               addLine('<%=translation.YES %>');
+             } else {
+               addLine('<%=translation.NO %>');
+             }
+             addEmptyLine();
            };
 
            data.body.forEach(function (item, key) {
@@ -113,20 +132,100 @@
              ctx.fillStyle = "#ff0000";
              ctx.fillText(key+1 + ')',item.faceRectangle.left-30,item.faceRectangle.top-30);
 
-             addLine('<%=translation.PERSON %>', key+1);
-             if (item.faceAttributes.smile) {
-               addLine('<%=translation.SMILE %>', '<%=translation.YES %>')
-             } else {
-               addLine('<%=translation.SMILE %>', '<%=translation.NO %>')
-             }
-             addLine('<%=translation.AGE %>', item.faceAttributes.age)
+             addLine('<b><%=translation.PERSON %>', key+1, '</b>');
+
+             /* Smile */
+             addWord('<%=translation.SMILE %>:');
+             yesOrNo(item.faceAttributes.smile);
+
+             /* Age */
+             addLine('<%=translation.AGE %>:', item.faceAttributes.age)
+             addEmptyLine();
+
+             /* Gender */
+             addWord('<%=translation.GENDER %>:');
              if (item.faceAttributes.gender == 'male') {
-               addLine('<%=translation.GENDER %>', '<%=translation.MALE %>')
+               addLine('<%=translation.MALE %>');
              } else {
-               addLine('<%=translation.GENDER %>', '<%=translation.FEMALE %>')
+               addLine('<%=translation.FEMALE %>');
              }
+             addEmptyLine();
+
+
+             /* Facial Hair */
+             addLine('<%=translation.FACIALHAIR %>:');
+             addLine('<%=translation.MOUSTACHE %>:', item.faceAttributes.facialHair.moustache);
+             addLine('<%=translation.BEARD %>:', item.faceAttributes.facialHair.beard);
+             addLine('<%=translation.AGE %>:', item.faceAttributes.facialHair.sideburns);
+             addEmptyLine();
+
+             /* Glasses */
+             addWord('<%=translation.GLASSES %>:');
+             if (item.faceAttributes.glasses == 'NoGlasses') {
+               addLine('<%=translation.NO_GLASSES %>');
+             }
+             if (item.faceAttributes.glasses == 'ReadingGlasses') {
+               addLine('<%=translation.READING_GLASSES %>');
+             }
+             if (item.faceAttributes.glasses == 'Sunglasses') {
+               addLine('<%=translation.SUNGLASSES %>');
+             }
+             addEmptyLine();
+
+
+             /* Emotions */
+             var translationEmotions = {
+               anger: '<%=translation.ANGER %>',
+               contempt: '<%=translation.CONTEMPT %>',
+               disgust: '<%=translation.DISGUST %>',
+               fear: '<%=translation.FEAR %>',
+               happiness: '<%=translation.HAPPINESS %>',
+               neutral: '<%=translation.NEUTRAL %>',
+               sadness: '<%=translation.SADNESS %>',
+               surprise: '<%=translation.SURPRISE %>'
+             }
+             addWord('<%=translation.EMOTIONS %>:');
+             for (var k in item.faceAttributes.emotion) {
+                if (item.faceAttributes.emotion[k] > 0) {
+                  addLine(translationEmotions[k]);
+                }
+             }
+             addEmptyLine();
+
+             /* Eye Makeup */
+             addWord('<%=translation.EYE_MAKEUP %>:');
+             yesOrNo(item.faceAttributes.eyeMakeup);
+
+             /* Lip Makeup */
+             addWord('<%=translation.LIP_MAKEUP %>:');
+             yesOrNo(item.faceAttributes.lipMakeup);
+
+             /* Bald */
+             addWord('<%=translation.BALD %>:');
+             if (item.faceAttributes.hair.bald > 0.9) {
+               addLine('<%=translation.YES %>');
+             } else {
+               addLine('<%=translation.NO %>');
+             }
+             addEmptyLine();
+
+             /* Hair Color */
+             var translationColors = {
+               brown: '<%=translation.BROWN %>',
+               black: '<%=translation.BLACK %>',
+               blond: '<%=translation.BLOND %>',
+               gray: '<%=translation.GRAY %>',
+               red: '<%=translation.RED %>',
+               other: '<%=translation.OTHER %>'
+             }
+             if (item.faceAttributes.hair.hairColor.length !== 0) {
+               addLine('<%=translation.HAIR_COLOR %>:', translationColors[item.faceAttributes.hair.hairColor[1].color]);
+               addLine('<%=translation.CONFIDENCE %>:', item.faceAttributes.hair.hairColor[1].confidence);
+               addEmptyLine();
+             }
+
            });
-           console.log(text)
+           interpreted.innerHTML = text;
          }
 
          document.getElementById('computer-vision').onclick = function () {
@@ -134,7 +233,7 @@
                 xhr.open('GET', '/api/ms/computer-vision/' + id);
                 xhr.addEventListener('load', function () {
                   var data = JSON.parse(xhr.response)
-                  content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
+                  raw.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
                   drawRectangles(data);
                   document.getElementById('face').style.display = 'block';
                   document.getElementById('computer-vision').style.display = 'none';
@@ -147,7 +246,7 @@
                 xhr.open('GET', '/api/ms/face/' + id);
                 xhr.addEventListener('load', function () {
                   var data = JSON.parse(xhr.response);
-                  content.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
+                  raw.innerHTML = syntaxHighlight(JSON.stringify(data, undefined, 4));
                   analyzeData(data);
                   document.getElementById('face').style.display = 'none';
                 });
