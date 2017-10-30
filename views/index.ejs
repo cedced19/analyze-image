@@ -80,9 +80,6 @@
                 ctx.lineWidth='6';
                 ctx.strokeStyle='red';
                 ctx.strokeRect(item.faceRectangle.left,item.faceRectangle.top,item.faceRectangle.width,item.faceRectangle.height);
-                ctx.font="40px Georgia";
-                ctx.fillStyle = "#ff0000";
-                ctx.fillText(item.age,item.faceRectangle.left-30,item.faceRectangle.top-30);
               });
 
 
@@ -93,7 +90,13 @@
          function analyzeData (data) {
            var canvas = document.getElementById('canvas').firstChild;
            var ctx = canvas.getContext('2d');
-           data.body.forEach(function (item) {
+           var text = '';
+
+           function addLine () {
+             text += [].slice.apply(arguments).join(' ') + '\n';
+           };
+
+           data.body.forEach(function (item, key) {
              ctx.beginPath();
              ctx.lineWidth='6';
              ctx.strokeStyle='blue';
@@ -103,9 +106,27 @@
                ctx.lineWidth='5';
                ctx.strokeStyle='green';
                ctx.strokeRect(Math.round(item.faceLandmarks[propertyName].x),Math.round(item.faceLandmarks[propertyName].y),1,1);
-             }
 
+             }
+             ctx.beginPath();
+             ctx.font="40px Georgia";
+             ctx.fillStyle = "#ff0000";
+             ctx.fillText(key+1 + ')',item.faceRectangle.left-30,item.faceRectangle.top-30);
+
+             addLine('<%=translation.PERSON %>', key+1);
+             if (item.faceAttributes.smile) {
+               addLine('<%=translation.SMILE %>', '<%=translation.YES %>')
+             } else {
+               addLine('<%=translation.SMILE %>', '<%=translation.NO %>')
+             }
+             addLine('<%=translation.AGE %>', item.faceAttributes.age)
+             if (item.faceAttributes.gender == 'male') {
+               addLine('<%=translation.GENDER %>', '<%=translation.MALE %>')
+             } else {
+               addLine('<%=translation.GENDER %>', '<%=translation.FEMALE %>')
+             }
            });
+           console.log(text)
          }
 
          document.getElementById('computer-vision').onclick = function () {
